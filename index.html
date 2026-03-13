@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HAYES AUTO BODY SHOP POS</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#111b2e;
+      --panel-2:#16233a;
+      --card:#1b2c49;
+      --card-hover:#22375b;
+      --accent:#ffd54a;
+      --accent-2:#f4b400;
+      --text:#eef4ff;
+      --muted:#9eb0d0;
+      --border:#294066;
+      --green:#50d890;
+      --red:#ff6b6b;
+      --blue:#5aa9ff;
+      --shadow:0 10px 30px rgba(0,0,0,.28);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      height:100%;
+      overflow:hidden;
+      font-family:Inter,Segoe UI,Arial,sans-serif;
+      background:
+        linear-gradient(135deg, rgba(255,213,74,.06), transparent 20%),
+        linear-gradient(180deg, #09101c 0%, #0b1220 100%);
+      color:var(--text);
+    }
+
+    body{
+      display:flex;
+      flex-direction:column;
+    }
+
+    .topbar{
+      height:74px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 22px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      backdrop-filter: blur(6px);
+      flex-shrink:0;
+    }
+
+    .brand-wrap{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }
+
+    .brand{
+      font-size:27px;
+      font-weight:900;
+      letter-spacing:2px;
+      color:var(--accent);
+      text-transform:uppercase;
+      line-height:1;
+    }
+
+    .subbrand{
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:1.8px;
+    }
+
+    .pill{
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,213,74,.12);
+      color:var(--accent);
+      border:1px solid rgba(255,213,74,.25);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:1px;
+      text-transform:uppercase;
+    }
+
+    .app{
+      height:calc(100vh - 74px);
+      display:grid;
+      grid-template-columns: 42% 28% 30%;
+      gap:14px;
+      padding:14px;
+    }
+
+    .panel{
+      min-height:0;
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .panel-header{
+      padding:14px 16px 10px;
+      border-bottom:1px solid rgba(255,255,255,.05);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .panel-title{
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:1.2px;
+      text-transform:uppercase;
+      color:var(--accent);
+    }
+
+    .panel-body{
+      padding:14px;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .tabs{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+    }
+
+    .tab{
+      border:none;
+      border-radius:12px;
+      padding:10px 8px;
+      background:var(--panel-2);
+      color:var(--text);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.6px;
+      cursor:pointer;
+      transition:.18s ease;
+      border:1px solid transparent;
+      text-transform:uppercase;
+    }
+
+    .tab:hover{
+      background:#20304d;
+    }
+
+    .tab.active{
+      background:linear-gradient(180deg, var(--accent), var(--accent-2));
+      color:#111;
+      box-shadow:0 8px 18px rgba(244,180,0,.18);
+    }
+
+    .items-grid{
+      min-height:0;
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      overflow:auto;
+      padding-right:2px;
+    }
+
+    .items-grid::-webkit-scrollbar,
+    .order-list::-webkit-scrollbar,
+    .materials-box::-webkit-scrollbar{
+      width:8px;
+    }
+
+    .items-grid::-webkit-scrollbar-thumb,
+    .order-list::-webkit-scrollbar-thumb,
+    .materials-box::-webkit-scrollbar-thumb{
+      background:#2a3d5f;
+      border-radius:999px;
+    }
+
+    .item-card{
+      background:linear-gradient(180deg, var(--card), #15253d);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:12px;
+      cursor:pointer;
+      transition:.18s ease;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-height:96px;
+      position:relative;
+      user-select:none;
+    }
+
+    .item-card:hover{
+      transform:translateY(-2px);
+      background:linear-gradient(180deg, var(--card-hover), #1a2d4c);
+      border-color:#41608e;
+    }
+
+    .item-card.selected{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(255,213,74,.25), 0 10px 20px rgba(255,213,74,.08);
+    }
+
+    .item-top{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:flex-start;
+    }
+
+    .item-name{
+      font-size:14px;
+      font-weight:800;
+      line-height:1.15;
+    }
+
+    .qty-badge{
+      min-width:34px;
+      text-align:center;
+      padding:5px 8px;
+      border-radius:999px;
+      background:rgba(255,213,74,.14);
+      color:var(--accent);
+      font-size:12px;
+      font-weight:900;
+      border:1px solid rgba(255,213,74,.22);
+    }
+
+    .item-prices{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:auto;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .item-prices strong{
+      color:var(--text);
+    }
+
+    .order-list{
+      min-height:0;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      padding-right:2px;
+    }
+
+    .order-row{
+      display:grid;
+      grid-template-columns: 1fr auto auto;
+      gap:8px;
+      align-items:center;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.05);
+      border-radius:14px;
+      padding:10px 12px;
+    }
+
+    .order-name{
+      font-weight:800;
+      font-size:14px;
+    }
+
+    .order-sub{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:2px;
+    }
+
+    .order-qty{
+      color:var(--accent);
+      font-weight:900;
+      font-size:13px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(255,213,74,.1);
+      border:1px solid rgba(255,213,74,.2);
+    }
+
+    .order-line{
+      font-weight:900;
+      font-size:14px;
+    }
+
+    .materials-box{
+      min-height:130px;
+      max-height:180px;
+      overflow:auto;
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+      padding-right:2px;
+    }
+
+    .mat-chip{
+      background:#132038;
+      border:1px solid #254267;
+      border-radius:12px;
+      padding:8px 10px;
+      font-size:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+    }
+
+    .mat-chip span{
+      color:var(--muted);
+    }
+
+    .summary{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .stat{
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:14px;
+      padding:12px;
+    }
+
+    .stat-label{
+      font-size:11px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:1px;
+      font-weight:800;
+    }
+
+    .stat-value{
+      margin-top:6px;
+      font-size:20px;
+      font-weight:900;
+    }
+
+    .final-total{
+      color:var(--accent);
+    }
+
+    .profit-positive{ color:var(--green); }
+    .profit-negative{ color:var(--red); }
+
+    .controls{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .btn{
+      border:none;
+      border-radius:14px;
+      padding:12px 14px;
+      cursor:pointer;
+      font-weight:900;
+      font-size:13px;
+      letter-spacing:.4px;
+      transition:.18s ease;
+    }
+
+    .btn:hover{ transform:translateY(-1px); }
+    .btn:active{ transform:translateY(0); }
+
+    .btn-primary{
+      background:linear-gradient(180deg, var(--accent), var(--accent-2));
+      color:#111;
+      box-shadow:0 10px 20px rgba(244,180,0,.16);
+    }
+
+    .btn-secondary{
+      background:#1b2a46;
+      color:#eef4ff;
+      border:1px solid #304b75;
+    }
+
+    .btn-danger{
+      background:#29141a;
+      color:#ffd7d7;
+      border:1px solid rgba(255,107,107,.25);
+    }
+
+    .btn.active-discount{
+      outline:2px solid rgba(255,213,74,.35);
+      box-shadow:0 0 0 2px rgba(255,213,74,.08), 0 10px 20px rgba(255,213,74,.12);
+    }
+
+    .fields{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .label{
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:1px;
+      color:var(--muted);
+      text-transform:uppercase;
+    }
+
+    input, textarea{
+      width:100%;
+      border:none;
+      outline:none;
+      border-radius:12px;
+      padding:12px 12px;
+      background:#12203a;
+      color:var(--text);
+      border:1px solid #294066;
+      font-size:14px;
+    }
+
+    input:focus, textarea:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(255,213,74,.2);
+    }
+
+    textarea{
+      resize:none;
+      height:72px;
+    }
+
+    .muted-note{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+
+    .empty{
+      color:var(--muted);
+      font-size:13px;
+      padding:4px 2px;
+    }
+
+    .tiny{
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    .receipt-preview{
+      background:#0f1a2d;
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:14px;
+      padding:12px;
+      white-space:pre-wrap;
+      font-size:12px;
+      line-height:1.45;
+      color:#dfe8fb;
+      min-height:120px;
+    }
+
+    @media (max-width: 1400px){
+      .app{ grid-template-columns: 40% 29% 31%; }
+      .items-grid{ grid-template-columns:1fr 1fr; }
+      .tabs{ grid-template-columns:repeat(4,1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand-wrap">
+      <div class="brand">HAYES AUTO BODY SHOP</div>
+      <div class="subbrand">Mechanic POS Terminal</div>
+    </div>
+    <div class="pill">Desktop RP Point of Sale</div>
+  </div>
+
+  <div class="app">
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Shop Items</div>
+        <div class="tiny">Click item to add</div>
+      </div>
+      <div class="panel-body">
+        <div class="tabs" id="tabs"></div>
+        <div class="items-grid" id="itemsGrid"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Current Order</div>
+        <div class="tiny">Live materials + totals</div>
+      </div>
+      <div class="panel-body" style="height:100%;">
+        <div class="order-list" id="orderList"></div>
+
+        <div class="panel-title" style="font-size:12px;">Materials Needed</div>
+        <div class="materials-box" id="materialsBox"></div>
+
+        <div class="summary">
+          <div class="stat">
+            <div class="stat-label">Subtotal</div>
+            <div class="stat-value" id="subtotal">$0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Final Total</div>
+            <div class="stat-value final-total" id="finalTotal">$0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Shop Cost</div>
+            <div class="stat-value" id="shopCost">$0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Profit</div>
+            <div class="stat-value" id="profit">$0</div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-secondary" id="undoBtn">Undo Last Item</button>
+          <button class="btn btn-danger" id="clearBtn">Clear All</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Customer + Checkout</div>
+        <div class="tiny">Discord-ready receipt</div>
+      </div>
+      <div class="panel-body">
+        <div class="fields">
+          <div class="field">
+            <label class="label" for="customerName">Customer Name</label>
+            <input id="customerName" type="text" placeholder="Gorilla Belle">
+          </div>
+
+          <div class="field">
+            <label class="label" for="vehicleModel">Vehicle | Make / Model</label>
+            <input id="vehicleModel" type="text" placeholder="Pegassi Faggio Mod">
+          </div>
+
+          <div class="field">
+            <label class="label" for="plate">Plate</label>
+            <input id="plate" type="text" placeholder="5RI258BM">
+          </div>
+
+          <div class="field">
+            <label class="label" for="notes">Notes</label>
+            <textarea id="notes" placeholder="Optional notes..."></textarea>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="discountBtn">10% Mech Discount</button>
+          <button class="btn btn-secondary" id="copyFullReportBtn">Copy Full Report</button>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="copyReceiptBtn">Copy Receipt</button>
+        </div>
+
+        <div class="muted-note">
+          Discount adds <strong>[Mech]</strong> to the customer name on the receipt.
+          Extras Kit stays at <strong>$0</strong> and notes manual activation on the full report.
+        </div>
+
+        <div class="panel-title" style="font-size:12px;">Receipt Preview</div>
+        <div class="receipt-preview" id="receiptPreview"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const categories = [
+      "Maintenance",
+      "Repairs",
+      "Tires & Wheels",
+      "Drivetrain & Tuning",
+      "Cosmetic & Electrical",
+      "Engines",
+      "Special"
+    ];
+
+    const items = [
+      { key: "tire-replacement-kit", name: "Tire Replacement Kit", receiptName: "Tire Replacement Kit", category: "Maintenance", charge: 500, cost: 400, materials: { Plastic: 10, Rubber: 30 } },
+      { key: "synthetic-oil", name: "Synthetic Oil", receiptName: "Synthetic Oil", category: "Maintenance", charge: 50, cost: 30, materials: { "Engine Oil": 3, Chemicals: 1 } },
+      { key: "air-filter", name: "Air Filter", receiptName: "Air Filter", category: "Maintenance", charge: 50, cost: 64, materials: { Plastic: 5, Rags: 4 } },
+      { key: "cleaning-kit", name: "Cleaning Kit", receiptName: "Cleaning Kit", category: "Maintenance", charge: 50, cost: 35, materials: { Rags: 5, Chemicals: 2 } },
+
+      { key: "suspension-kit", name: "Suspension Kit", receiptName: "Suspension Kit", category: "Repairs", charge: 100, cost: 115, materials: { Steel: 7, "Metal Scrap": 10 } },
+      { key: "clutch-replacement", name: "Clutch Replacement", receiptName: "Clutch Replacement", category: "Repairs", charge: 50, cost: 80, materials: { Iron: 4, Copper: 4, Rubber: 4 } },
+      { key: "brakepad-replacement", name: "Brakepad Replacement", receiptName: "Brakepad Replacement", category: "Repairs", charge: 300, cost: 360, materials: { Steel: 10, Alu: 12, "Metal Scrap": 5 } },
+      { key: "repair-kit", name: "Repair Kit", receiptName: "Repair Kit", category: "Repairs", charge: 1000, cost: 1000, materials: { Steel: 7, "Metal Scrap": 40, Alu: 5, Toolkit: 3 } },
+      { key: "advanced-repair-kit", name: "Advanced Repair Kit", receiptName: "Advanced Repair Kit", category: "Repairs", charge: 1500, cost: 1500, materials: { Steel: 35, "Metal Scrap": 150, Alu: 25, Toolkit: 15 } },
+      { key: "ceramic-brakes", name: "Ceramic Brakes", receiptName: "Ceramic Brakes", category: "Repairs", charge: 1100, cost: 1075, materials: { Steel: 45, Iron: 45, Alu: 25, "Scrap Metal": 50 } },
+
+      { key: "slick-tires", name: "Slick Tires", receiptName: "Slick Tires", category: "Tires & Wheels", charge: 3200, cost: 3000, materials: { Rubber: 150, Plastic: 150 } },
+      { key: "semi-slick-tires", name: "Semi Slick Tires", receiptName: "Semi Slick Tires", category: "Tires & Wheels", charge: 1700, cost: 1500, materials: { Rubber: 75, Plastic: 75 } },
+      { key: "offroad-tires", name: "Offroad Tires", receiptName: "Offroad Tires", category: "Tires & Wheels", charge: 2200, cost: 2000, materials: { Rubber: 100, Plastic: 100 } },
+      { key: "vehicle-wheels", name: "Vehicle Wheels", receiptName: "Wheels", category: "Tires & Wheels", charge: 1000, cost: 1125, materials: { Rubber: 45 } },
+      { key: "tire-smoke-kit", name: "Tire Smoke Kit", receiptName: "Tire Smoke Kit", category: "Tires & Wheels", charge: 500, cost: 625, materials: { Rubber: 25 } },
+
+      { key: "drift-tuning-kit", name: "Drift Tuning Kit", receiptName: "Drift Tuning Kit", category: "Drivetrain & Tuning", charge: 500, cost: 450, materials: { Steel: 20, "Circuit Board": 1, "Copper Wire": 10 } },
+      { key: "awd-drivetrain", name: "AWD Drivetrain", receiptName: "AWD Drivetrain", category: "Drivetrain & Tuning", charge: 1500, cost: 1400, materials: { "Carbon Steel": 50, Alu: 30, "Metal Scrap": 250 } },
+      { key: "rwd-drivetrain", name: "RWD Drivetrain", receiptName: "RWD Drivetrain", category: "Drivetrain & Tuning", charge: 300, cost: 305, materials: { Iron: 30, Alu: 15, "Metal Scrap": 80 } },
+      { key: "fwd-drivetrain", name: "FWD Drivetrain", receiptName: "FWD Drivetrain", category: "Drivetrain & Tuning", charge: 300, cost: 305, materials: { Iron: 30, Alu: 15, "Metal Scrap": 80 } },
+      { key: "performance-parts", name: "Performance Parts", receiptName: "Performance Parts", category: "Drivetrain & Tuning", charge: 1000, cost: 275, materials: { Steel: 15, Alu: 10 } },
+      { key: "stance-kit", name: "Stance Kit", receiptName: "Stance Kit", category: "Drivetrain & Tuning", charge: 500, cost: 450, materials: { Copper: 15, Alu: 15 } },
+
+      { key: "lighting-controller", name: "Lighting Controller", receiptName: "Lighting Controller", category: "Cosmetic & Electrical", charge: 100, cost: 120, materials: { "Circuit Board": 1, Plastic: 10 } },
+      { key: "cosmetics", name: "Cosmetics", receiptName: "Cosmetics", category: "Cosmetic & Electrical", charge: 100, cost: 100, materials: { Copper: 10, Alu: 10 } },
+      { key: "respray-kit", name: "Respray Kit", receiptName: "Respray", category: "Cosmetic & Electrical", charge: 300, cost: 275, materials: { Copper: 5, Alu: 5, Chemicals: 15 } },
+      { key: "extras-kit", name: "Extras Kit", receiptName: "Extras Kit", category: "Cosmetic & Electrical", charge: 0, cost: 450, materials: { Copper: 15, Alu: 15 }, note: "Manual activation required" },
+
+      { key: "v4-engine", name: "V4 Engine", receiptName: "V4 Engine", category: "Engines", charge: 2000, cost: 1725, materials: { "Carbon Steel": 45, Alu: 45, "Engine Oil": 10, "Spark Plug": 4, "Metal Scrap": 350 } },
+      { key: "v6-engine", name: "V6 Engine", receiptName: "V6 Engine", category: "Engines", charge: 3000, cost: 2025, materials: { "Carbon Steel": 55, Alu: 45, "Engine Oil": 10, "Spark Plug": 6, "Metal Scrap": 350 } },
+      { key: "v8-engine", name: "V8 Engine", receiptName: "V8 Engine", category: "Engines", charge: 5000, cost: 2275, materials: { "Carbon Steel": 65, Alu: 35, "Engine Oil": 10, "Spark Plug": 8, "Metal Scrap": 350 } },
+      { key: "v12-engine", name: "V12 Engine", receiptName: "V12 Engine", category: "Engines", charge: 6000, cost: 2725, materials: { "Carbon Steel": 75, Alu: 45, "Engine Oil": 10, "Spark Plug": 12, "Metal Scrap": 350 } },
+
+      { key: "max-armor-5", name: "Max Armor 5", receiptName: "Max Armor 5", category: "Special", charge: 10000, cost: 10000, materials: {} },
+      { key: "max-armor-4", name: "Max Armor 4", receiptName: "Max Armor 4", category: "Special", charge: 9000, cost: 9000, materials: {} },
+      { key: "max-armor-3", name: "Max Armor 3", receiptName: "Max Armor 3", category: "Special", charge: 8000, cost: 8000, materials: {} },
+      { key: "max-armor-2", name: "Max Armor 2", receiptName: "Max Armor 2", category: "Special", charge: 7000, cost: 7000, materials: {} },
+      { key: "max-armor-1", name: "Max Armor 1", receiptName: "Max Armor 1", category: "Special", charge: 6000, cost: 6000, materials: {} },
+      { key: "vehicle-weapons", name: "Vehicle Weapons", receiptName: "Vehicle Weapons", category: "Special", charge: 50000, cost: 0, materials: {} }
+    ];
+
+    let activeCategory = categories[0];
+    let order = {};
+    let historyStack = [];
+    let mechDiscount = false;
+
+    const tabsEl = document.getElementById("tabs");
+    const itemsGridEl = document.getElementById("itemsGrid");
+    const orderListEl = document.getElementById("orderList");
+    const materialsBoxEl = document.getElementById("materialsBox");
+    const subtotalEl = document.getElementById("subtotal");
+    const finalTotalEl = document.getElementById("finalTotal");
+    const shopCostEl = document.getElementById("shopCost");
+    const profitEl = document.getElementById("profit");
+    const receiptPreviewEl = document.getElementById("receiptPreview");
+    const discountBtn = document.getElementById("discountBtn");
+
+    const customerNameEl = document.getElementById("customerName");
+    const vehicleModelEl = document.getElementById("vehicleModel");
+    const plateEl = document.getElementById("plate");
+    const notesEl = document.getElementById("notes");
+
+    function money(value){
+      return `$${Number(value).toLocaleString("en-US")}`;
+    }
+
+    function getQty(key){
+      return order[key] || 0;
+    }
+
+    function getSubtotal(){
+      return items.reduce((sum, item) => sum + getQty(item.key) * item.charge, 0);
+    }
+
+    function getShopCost(){
+      return items.reduce((sum, item) => sum + getQty(item.key) * item.cost, 0);
+    }
+
+    function getFinalTotal(){
+      const subtotal = getSubtotal();
+      return mechDiscount ? Math.round(subtotal * 0.9) : subtotal;
+    }
+
+    function getProfit(){
+      return getFinalTotal() - getShopCost();
+    }
+
+    function getMaterials(){
+      const totals = {};
+      items.forEach(item => {
+        const qty = getQty(item.key);
+        if (!qty) return;
+        Object.entries(item.materials).forEach(([name, count]) => {
+          totals[name] = (totals[name] || 0) + count * qty;
+        });
+      });
+      return totals;
+    }
+
+    function getReceiptItems(){
+      return items
+        .filter(item => getQty(item.key) > 0)
+        .map(item => `${item.receiptName} x${getQty(item.key)}`);
+    }
+
+    function getOrderItems(){
+      return items
+        .filter(item => getQty(item.key) > 0)
+        .map(item => {
+          const base = `${item.name} x${getQty(item.key)}`;
+          return item.note ? `${base} (${item.note})` : base;
+        });
+    }
+
+    function renderTabs(){
+      tabsEl.innerHTML = categories.map(category => `
+        <button class="tab ${category === activeCategory ? "active" : ""}" onclick="setCategory('${category.replace(/'/g, "\\'")}')">
+          ${category}
+        </button>
+      `).join("");
+    }
+
+    function renderItems(){
+      const filtered = items.filter(item => item.category === activeCategory);
+      itemsGridEl.innerHTML = filtered.map(item => {
+        const qty = getQty(item.key);
+        return `
+          <div class="item-card ${qty > 0 ? "selected" : ""}" onclick="addItem('${item.key}')">
+            <div class="item-top">
+              <div class="item-name">${item.name}</div>
+              ${qty > 0 ? `<div class="qty-badge">${qty}x</div>` : ""}
+            </div>
+            <div class="item-prices">
+              <div>Charge <strong>${money(item.charge)}</strong></div>
+              <div>Cost <strong>${money(item.cost)}</strong></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderOrder(){
+      const selected = items.filter(item => getQty(item.key) > 0);
+
+      if (!selected.length){
+        orderListEl.innerHTML = `<div class="empty">No items selected yet.</div>`;
+      } else {
+        orderListEl.innerHTML = selected.map(item => {
+          const qty = getQty(item.key);
+          const line = item.charge * qty;
+          return `
+            <div class="order-row">
+              <div>
+                <div class="order-name">${item.name}</div>
+                <div class="order-sub">${money(item.charge)} each${item.note ? ` • ${item.note}` : ""}</div>
+              </div>
+              <div class="order-qty">${qty}x</div>
+              <div class="order-line">${money(line)}</div>
+            </div>
+          `;
+        }).join("");
+      }
+    }
+
+    function renderMaterials(){
+      const materials = getMaterials();
+      const entries = Object.entries(materials).sort((a,b) => a[0].localeCompare(b[0]));
+      if (!entries.length){
+        materialsBoxEl.innerHTML = `<div class="empty">No materials needed yet.</div>`;
+        return;
+      }
+      materialsBoxEl.innerHTML = entries.map(([name, qty]) => `
+        <div class="mat-chip">
+          <span>${name}</span>
+          <strong>${qty}x</strong>
+        </div>
+      `).join("");
+    }
+
+    function renderSummary(){
+      const subtotal = getSubtotal();
+      const final = getFinalTotal();
+      const shopCost = getShopCost();
+      const profit = getProfit();
+
+      subtotalEl.textContent = money(subtotal);
+      finalTotalEl.textContent = money(final);
+      shopCostEl.textContent = money(shopCost);
+      profitEl.textContent = money(profit);
+      profitEl.className = `stat-value ${profit >= 0 ? "profit-positive" : "profit-negative"}`;
+
+      discountBtn.classList.toggle("active-discount", mechDiscount);
+      discountBtn.textContent = mechDiscount ? "10% Mech Discount Applied" : "10% Mech Discount";
+    }
+
+    function wrapForDiscord(text){
+      return "```" + "\n" + text + "\n" + "```";
+    }
+
+    function buildReceiptText(){
+      const rawName = customerNameEl.value.trim() || "";
+      const name = mechDiscount
+        ? `${rawName}${rawName ? " " : ""}[Mech]`
+        : rawName;
+
+      const vehicle = vehicleModelEl.value.trim() || "";
+      const plate = plateEl.value.trim() || "";
+      const upgrades = getReceiptItems().join(", ");
+      const final = money(getFinalTotal());
+
+      const text = `Customer Name: ${name}
+Vehicle | [Make/Model]: ${vehicle}
+Plate: ${plate}
+Upgrades Purchased: ${upgrades}
+Price Charged: ${final}
+SHOP: Hayes Auto Body Shop`;
+
+      return wrapForDiscord(text);
+    }
+
+    function buildOrderText(){
+      const name = customerNameEl.value.trim() || "";
+      const vehicle = vehicleModelEl.value.trim() || "";
+      const plate = plateEl.value.trim() || "";
+      const notes = notesEl.value.trim();
+      const itemsList = getOrderItems().join("\n");
+      const materials = Object.entries(getMaterials())
+        .sort((a,b) => a[0].localeCompare(b[0]))
+        .map(([name, qty]) => `${name} x${qty}`)
+        .join("\n");
+
+      const text = `Hayes Auto Body Shop Order
+
+Customer: ${name}
+Vehicle: ${vehicle}
+Plate: ${plate}
+
+Items:
+${itemsList}
+
+Materials Needed:
+${materials}
+
+Customer Total: ${money(getFinalTotal())}
+Shop Cost: ${money(getShopCost())}
+Subtotal: ${money(getSubtotal())}
+Profit: ${money(getProfit())}${notes ? `
+
+Notes:
+${notes}` : ""}`;
+
+      return wrapForDiscord(text);
+    }
+
+    function renderReceiptPreview(){
+      receiptPreviewEl.textContent = buildReceiptText();
+    }
+
+    function renderAll(){
+      renderTabs();
+      renderItems();
+      renderOrder();
+      renderMaterials();
+      renderSummary();
+      renderReceiptPreview();
+    }
+
+    function addItem(key){
+      historyStack.push(key);
+      order[key] = (order[key] || 0) + 1;
+      renderAll();
+    }
+
+    function undoLastItem(){
+      const last = historyStack.pop();
+      if (!last) return;
+      order[last] = (order[last] || 0) - 1;
+      if (order[last] <= 0) delete order[last];
+      renderAll();
+    }
+
+    function clearAll(){
+      order = {};
+      historyStack = [];
+      mechDiscount = false;
+      customerNameEl.value = "";
+      vehicleModelEl.value = "";
+      plateEl.value = "";
+      notesEl.value = "";
+      renderAll();
+    }
+
+    function setCategory(category){
+      activeCategory = category;
+      renderTabs();
+      renderItems();
+    }
+
+    async function copyText(text, button, label){
+      try{
+        await navigator.clipboard.writeText(text);
+        button.textContent = label;
+      }catch{
+        button.textContent = label;
+      }
+    }
+
+    window.setCategory = setCategory;
+    window.addItem = addItem;
+
+    document.getElementById("undoBtn").addEventListener("click", undoLastItem);
+    document.getElementById("clearBtn").addEventListener("click", clearAll);
+
+    discountBtn.addEventListener("click", () => {
+      mechDiscount = !mechDiscount;
+      renderAll();
+    });
+
+    document.getElementById("copyReceiptBtn").addEventListener("click", function(){
+      copyText(buildReceiptText(), this, "Copy Receipt");
+    });
+
+    document.getElementById("copyFullReportBtn").addEventListener("click", function(){
+      copyText(buildOrderText(), this, "Copy Full Report");
+    });
+
+    [customerNameEl, vehicleModelEl, plateEl, notesEl].forEach(el => {
+      el.addEventListener("input", renderReceiptPreview);
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
